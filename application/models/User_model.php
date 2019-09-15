@@ -25,6 +25,13 @@ class User_model extends CI_Model {
 		return $sql->num_rows() > 0 ? $sql->row_array()['id_user'] : false;
 	}
 
+	public function get_user_by_username($username)
+	{
+		$sql = $this->db->get_where('tbl_user', ['username' => $username]);
+
+		return $sql->num_rows() > 0 ? $sql->row_array() : false;
+	}
+
 	public function get_user_by_id($id_user)
 	{
 		$sql = $this->db->get_where('tbl_user', ['id_user' => $id_user]);
@@ -63,7 +70,7 @@ class User_model extends CI_Model {
 				'username' => $username,
 				'password' => md5($password),
 				'email' => $email,
-				'aktif' => true
+				'status' => 'AKTIFASI'
 			]
 		) > 0;
 	}
@@ -75,28 +82,48 @@ class User_model extends CI_Model {
 		$this->db->delete('tbl_user', ['id_user' => $id_user]) > 0;
 	}
 
-	public function edit_user($id_user, $email, $username, $password, $aktif = true, $reason_ban = NULL)
+	public function edit_user($id_user, $email, $username, $password, $status = NULL, $keterangan = NULL)
 	{
+		$updates = [
+			'email' => $email,
+			'username' => $username,
+			'password' => md5($password)
+		];
+
+		if (!empty($status)) $updates['status'] = $status;
+		if (!empty($keterangan)) $updates['keterangan'] = $keterangan;
+
 		return $this->db->update('tbl_user', 
+			$updates,
 			[
-				'email' => $email,
-				'username' => $username,
-				'password' => md5($password),
-				'aktif' => $aktif,
-				'reason_ban' => $reason_ban
-			],
-			['id_user' => $id_user]
+				'id_user' => $id_user
+			]
 		) > 0;
 	}
 
-	public function ban_user($id_user, $reason_ban)
+	public function ban_user($id_user, $keterangan)
 	{
-		return $this->db->update('tbl_user', 
+		return $this->db->update('tbl_user',
 			[
-				'aktif' => false,
-				'reason_ban' => $reason_ban
+				'status' => 'BAN',
+				'keterangan' => $keterangan
 			],
-			['id_user' => $id_user]
+			[
+				'id_user' => $id_user
+			]
+		) > 0;
+	}
+
+	public function unban_user($id_user)
+	{
+		return $this->db->update('tbl_user',
+			[
+				'status' => 'AKTIF',
+				'keterangan' => NULL
+			],
+			[
+				'id_user' => $id_user
+			]
 		) > 0;
 	}
 
@@ -105,16 +132,5 @@ class User_model extends CI_Model {
 		$sql = $this->db->get_where('tbl_user', ['aktif' => false], $limit, $offset);
 
 		return $sql->num_rows() > 0 ? $sql->result_array() : false;
-	}
-
-	public function unban_user($id_user)
-	{
-		return $this->db->update('tbl_user', 
-			[
-				'aktif' => true,
-				'reason_ban' => NULL
-			],
-			['id_user' => $id_user]
-		) > 0;
 	}
 }

@@ -30,7 +30,7 @@ class Access {
 
 			if ($user)
 			{
-				if ($user['aktif'])
+				if (strcmp($user['status'], 'AKTIF') == 0)
 				{
 					return $user;
 				}

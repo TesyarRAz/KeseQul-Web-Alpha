@@ -91,7 +91,7 @@ class User extends KCOREST_Controller {
 			$user = $this->user_model->get_user_by_identity($username, $password);
 			if ($user)
 			{
-				if ($user['aktif'])
+				if (strcmp($user['status'], 'AKTIF') == 0)
 				{
 					unset($user['password']);
 
@@ -102,9 +102,13 @@ class User extends KCOREST_Controller {
 					$this->default_response['data']['peran'] = $this->peran_model->get_peran_by_user($user['id_user']);
 					$this->default_response['data']['uang'] = $this->uang_model->get_uang_by_user($user['id_user']);
 				}
+				else if (strcmp($user['status'], 'BAN'))
+				{
+					$this->default_response['pesan'] = 'Akun anda di ban, pesan admin : ' . $user['keterangan'];
+				}
 				else
 				{
-					$this->default_response['pesan'] = 'Akun anda di ban, pesan admin : ' . $user['reason_ban'];
+					$this->default_response['pesan'] = 'Akun anda belum diaktifasi';
 				}
 			}
 			else
@@ -155,31 +159,47 @@ class User extends KCOREST_Controller {
 
 			if ($target_ban != $user['id_user'])
 			{
-				if ($this->access->filter_access(['peran' => ['SUPERADMIN', 'ADMIN']], $user['id_user']))
+				$target_user = $this->user_model->get_user_by_id($target_ban);
+				if ($target_user)
 				{
-					// ANTI BAN ADMIN DAN SUPERADMIN B)
-					if (!$this->access->filter_access(['peran' => ['SUPERADMIN', 'ADMIN']], $target_ban))
+					if (strcmp($target_user['status'], 'AKTIF') == 0)
 					{
-						$status = $this->user_model->ban_user($target_ban, $reason_ban);
-
-						if ($status)
+						if ($this->access->filter_access(['peran' => ['SUPERADMIN', 'ADMIN']], $user['id_user']))
 						{
-							$this->default_response['status'] = 1;
-							$this->default_response['pesan'] = 'Berhasil';
+							// ANTI BAN ADMIN DAN SUPERADMIN B)
+							if (!$this->access->filter_access(['peran' => ['SUPERADMIN', 'ADMIN']], $target_ban))
+							{
+
+								$status = $this->user_model->ban_user($target_ban, $reason_ban);
+
+								if ($status)
+								{
+									$this->default_response['status'] = 1;
+									$this->default_response['pesan'] = 'Berhasil';
+								}
+								else
+								{
+									$this->default_response['pesan'] = 'Gagal';
+								}
+							}
+							else
+							{
+								$this->default_response['pesan'] = 'Tidak bisa ban admin atau superadmin';
+							}
 						}
 						else
 						{
-							$this->default_response['pesan'] = 'Gagal';
+							$this->default_response['pesan'] = 'Anda tidak punya hak akses';
 						}
 					}
 					else
 					{
-						$this->default_response['pesan'] = 'Tidak bisa ban admin atau superadmin';
+						$this->default_response['pesan'] = 'User sudah diban atau belum terdaftar';
 					}
 				}
 				else
 				{
-					$this->default_response['pesan'] = 'Anda tidak punya hak akses';
+					$this->default_response['pesan'] = 'User tidak ada';
 				}
 			}
 			else
@@ -226,6 +246,43 @@ class User extends KCOREST_Controller {
 		$this->print_response();
 	}
 
+	public function unban_get()
+	{
+		$token = $this->input->get('token');
+		$username = $this->get('username');
+
+		if (!empty($username))
+		{
+			$user = $this->access->get_access($token);
+
+			if ($this->access->filter_access(['peran' => ['SUPERADMIN', 'ADMIN']], $user['id_user']))
+			{
+				$target_unban = $this->user_model->get_user_by_username($username);
+				if (strcmp($target_unban['status'], 'BAN') == 0)
+				{
+					unset($target_unban['password']);
+
+					$this->default_response['status'] = 1;
+					$this->default_response['data'] = $target_unban;
+				}
+				else
+				{
+					$this->default_response['pesan'] = 'Dia tidak sedang di ban';
+				}
+			}
+			else
+			{
+				$this->default_response['pesan'] = 'Anda tidak punya akses';
+			}
+		}
+		else
+		{
+			$this->default_response['pesan'] = 'Username tidak boleh kosong';
+		}
+
+		$this->print_response();
+	}
+
 	public function unban_post()
 	{
 		$input_failed = [
@@ -239,21 +296,37 @@ class User extends KCOREST_Controller {
 			$token = $this->input->get('token');
 
 			$user = $this->access->get_access($token);
+			$target_ban = $this->post('id_user');
 
 			if ($target_ban != $user['id_user'])
 			{
+				$target_user = $this->user_model->get_user_by_id($target_ban);
 				if ($this->access->filter_access(['peran' => ['SUPERADMIN', 'ADMIN']], $user['id_user']))
 				{
-					$status = $this->user_model->unban_user($target_ban);
-
-					if ($status)
+					if ($target_user)
 					{
-						$this->default_response['status'] = 1;
-						$this->default_response['pesan'] = 'Berhasil';
+						if (strcmp($target_user['status'], 'BAN') == 0)
+						{
+							$status = $this->user_model->unban_user($target_ban);
+
+							if ($status)
+							{
+								$this->default_response['status'] = 1;
+								$this->default_response['pesan'] = 'Berhasil';
+							}
+							else
+							{
+								$this->default_response['pesan'] = 'Gagal';
+							}
+						}
+						else
+						{
+							$this->default_response['pesan'] = 'Dia tidak dalam status di ban';
+						}
 					}
 					else
 					{
-						$this->default_response['pesan'] = 'Gagal';
+						$this->default_response['pesan'] = 'User tidak ada';
 					}
 				}
 				else
