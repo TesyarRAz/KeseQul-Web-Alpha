@@ -23,11 +23,12 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 		        <div class="col-12 mx-auto">
 		            <div class="container">
 		                <h2 align="center">Aktifasi Akun</h2>
-						<form class="form-group my-5" action="<?= site_url('aktifasi/user') ?>" method="POST">
+						<form class="form-group my-5" action="<?= site_url('aktifasi/aktifkan') ?>" method="POST">
+							<input type="hidden" name="password_key" value="<?= $password_key ?>">
 							<input class="form-control my-2" type="text" name="username" placeholder="Username" required />
-							<?= "<font color='red'>".  validation_errors() . "</font>"?>
+							<?= form_error('username', "<font color='red'>", "</font>") ?>
 							<input class="form-control my-2" type="password" name="password" placeholder="Password" required />
-							<?= "<font color='red'>".  validation_errors() . "</font>"?>
+							<?= form_error('password', "<font color='red'>", "</font>") ?>
 							<input class="btn btn-success w-100" type="submit" name="register" value="Aktifkan"></input>
 						</form>
 		            </div>

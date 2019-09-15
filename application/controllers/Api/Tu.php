@@ -9,6 +9,8 @@ class TU extends KCOREST_Controller {
 
 		$this->load->model('tu_model', '', true);
 		$this->load->model('topup_model', '', true);
+
+		$this->load->library('aktifasi');
 	}
 
 	public function data_get()
@@ -101,10 +103,7 @@ class TU extends KCOREST_Controller {
 		];
 
 		$this->form_validation->set_rules(
-			'username', 'Username', 'trim|required|is_unique[tbl_user.username]', $input_failed);
-		$this->form_validation->set_rules(
 			'email', 'Email', 'trim|required|valid_email|is_unique[tbl_user.email]', $input_failed);
-		$this->form_validation->set_rules('password', 'Password', 'trim|required', $input_failed);
 		$this->form_validation->set_rules('nip', 'NIP', 'trim|required|integer', $input_failed);
 		$this->form_validation->set_rules('nama', 'Nama', 'trim|required', $input_failed);
 		$this->form_validation->set_rules('gender', 'Gender', 'trim|required', $input_failed);
@@ -115,8 +114,6 @@ class TU extends KCOREST_Controller {
 			$token = $this->input->get('token');
 
 			$email = $this->post('email');
-			$username = $this->post('username');
-			$password = $this->post('password');
 			$nip = $this->post('nip');
 			$nama = $this->post('nama');
 			$gender = $this->post('gender');
@@ -128,10 +125,9 @@ class TU extends KCOREST_Controller {
 				$level = $this->level_model->get_level_by_nama('TU');
 				if ($level)
 				{
-					if ($this->user_model->tambah_user($email, $username, $password))
+					if ($this->user_model->tambah_user($email))
 					{
-						$register_user = $this->user_model
-						->get_user_by_identity($username, $password);
+						$register_user = $this->user_model->get_user_by_email($email);
 
 						$this->db->trans_begin();
 						try
@@ -160,6 +156,13 @@ class TU extends KCOREST_Controller {
 							$this->db->trans_rollback();
 							$this->user_model->hapus_user($register_user['id_user']);
 							$this->default_response['pesan'] = 'Gagal';
+						}
+						if (!$this->aktifasi->kirim_aktifasi($register_user['email'], $register_user['keterangan']))
+						{
+							$this->default_response['status'] = 0;
+							$this->default_response['pesan'] = 'Tidak dapat mengirim email aktifasi';
+							$this->db->trans_rollback();
+							$this->user_model->hapus_user($register_user['id_user']);
 						}
 					}
 					else
@@ -197,10 +200,7 @@ class TU extends KCOREST_Controller {
 
 		$this->form_validation->set_rules('id_user', 'ID User', 'trim|required|integer', $input_failed);
 		$this->form_validation
-		->set_rules('username', 'Username', 'trim|required', $input_failed);
-		$this->form_validation
 		->set_rules('email', 'Email', 'trim|required|valid_email', $input_failed);
-		$this->form_validation->set_rules('password', 'Password', 'trim|required', $input_failed);
 		$this->form_validation->set_rules('nip', 'NIP', 'trim|required|integer', $input_failed);
 		$this->form_validation->set_rules('nama', 'Nama', 'trim|required', $input_failed);
 		$this->form_validation->set_rules('gender', 'Gender', 'trim|required', $input_failed);
@@ -210,8 +210,6 @@ class TU extends KCOREST_Controller {
 		{
 			$token = $this->input->get('token');
 			$email = $this->post('email');
-			$username = $this->post('username');
-			$password = $this->post('password');
 			$id_user = $this->post('id_user');
 			$nip = $this->post('nip');
 			$nama = $this->post('nama');
@@ -229,7 +227,7 @@ class TU extends KCOREST_Controller {
 					$this->default_response['status'] = 1;
 					$this->default_response['pesan'] = 'Tidak bisa edit admin kau :v';
 				}
-				elseif ($this->user_model->edit_user($id_user, $email, $username, $password))
+				elseif ($this->user_model->edit_user($id_user, $email))
 				{
 					$status = $this->tu_model->edit_tu($id_user, $nip, $nama, $gender, $tanggal_lahir);
 					if ($status)

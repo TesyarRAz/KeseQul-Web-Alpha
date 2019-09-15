@@ -18,6 +18,13 @@ class User_model extends CI_Model {
 		$this->load->helper('date');
 	}
 
+	public function get_id_by_aktifasi($password_key)
+	{
+		$sql = $this->db->select('id_user')->get_where('tbl_user', ['keterangan' => $password_key, 'status' => 'AKTIFASI']);
+
+		return $sql->num_rows() > 0 ? $sql->row_array() : false;
+	}
+
 	public function get_id_by_username($username)
 	{
 		$sql = $this->db->select('id_user')->from('tbl_user')->where('username', $username)->get();
@@ -35,6 +42,13 @@ class User_model extends CI_Model {
 	public function get_user_by_id($id_user)
 	{
 		$sql = $this->db->get_where('tbl_user', ['id_user' => $id_user]);
+
+		return $sql->num_rows() > 0 ? $sql->row_array() : false;
+	}
+
+	public function get_user_by_email($email)
+	{
+		$sql = $this->db->get_where('tbl_user', ['email' => $email]);
 
 		return $sql->num_rows() > 0 ? $sql->row_array() : false;
 	}
@@ -63,14 +77,15 @@ class User_model extends CI_Model {
 		return $sql->num_rows() > 0 ? $sql->row_array() : false;
 	}
 
-	public function tambah_user($email, $username, $password)
+	public function tambah_user($email)
 	{
 		return $this->db->insert('tbl_user', 
 			[
-				'username' => $username,
-				'password' => md5($password),
+				'username' => md5('u' . date('YmdHis')),
+				'password' => md5('p' . date('YmdHis')),
 				'email' => $email,
-				'status' => 'AKTIFASI'
+				'status' => 'AKTIFASI',
+				'keterangan' => md5(random_string('alnum', 32) . date('YmdHis'))
 			]
 		) > 0;
 	}
@@ -82,16 +97,16 @@ class User_model extends CI_Model {
 		$this->db->delete('tbl_user', ['id_user' => $id_user]) > 0;
 	}
 
-	public function edit_user($id_user, $email, $username, $password, $status = NULL, $keterangan = NULL)
+	public function edit_user
+	($id_user, $email = NULL, $status = NULL, $keterangan = NULL, $username = NULL, $password = NULL)
 	{
-		$updates = [
-			'email' => $email,
-			'username' => $username,
-			'password' => md5($password)
-		];
+		$updates = [];
 
+		if (!empty($email)) $updates['email'] = $email;
 		if (!empty($status)) $updates['status'] = $status;
 		if (!empty($keterangan)) $updates['keterangan'] = $keterangan;
+		if (!empty($username)) $updates['username'] = $username;
+		if (!empty($passwodr)) $updates['password'] = $password;
 
 		return $this->db->update('tbl_user', 
 			$updates,
