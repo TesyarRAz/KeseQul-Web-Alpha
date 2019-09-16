@@ -23,15 +23,17 @@ class TU_model extends CI_Model {
 	// Akan ada bug ketika memasukan tanggal lahir dan gender
 	public function tambah_tu($id_user, $nip, $nama, $gender, $tanggal_lahir)
 	{
-		return $this->db->insert('tbl_tu', 
-			[
-				'id_user' => $id_user,
-				'nip' => $nip,
-				'nama' => $nama,
-				'gender' => $gender,
-				'tanggal_lahir' => $tanggal_lahir
-			]
-		) > 0;
+		$data = [
+			'id_user' => $id_user,
+			'nip' => $nip,
+			'nama' => $nama,
+			'gender' => $gender,
+			'tanggal_lahir' => $tanggal_lahir
+		];
+
+		if ($gambar_location != NULL) $data['image_link'] = $gambar_location;
+
+		return $this->db->insert('tbl_tu', $data) > 0;
 	}
 
 	public function edit_tu($id_user, $nip, $nama, $gender, $tanggal_lahir)

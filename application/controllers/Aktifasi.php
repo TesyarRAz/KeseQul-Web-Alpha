@@ -13,13 +13,15 @@ class Aktifasi extends CI_Controller {
 	{
 		$input_failed = [
 			'required' => '%s tidak boleh kosong',
-			'is_unique' => '%s sudah ada yang punya'
+			'is_unique' => '%s sudah ada yang punya',
+			'min_length' => '%s harus lebih dari 5'
 		];
 
+		// Mengatur agar minimal character adalah 5
 		$this->form_validation->set_rules(
-			'username', 'Username', 'trim|required|is_unique[tbl_user.username]', $input_failed);
+			'username', 'Username', 'trim|required|min_length[5]|is_unique[tbl_user.username]', $input_failed);
 		$this->form_validation->set_rules(
-			'password', 'Password', 'trim|required', $input_failed);
+			'password', 'Password', 'trim|required|min_length[5]', $input_failed);
 		$this->form_validation->set_rules(
 			'password_key', 'Password key', 'trim|required', $input_failed);
 
@@ -34,7 +36,9 @@ class Aktifasi extends CI_Controller {
 
 			if ($data)
 			{
-				$status = $this->user_model->edit_user($data['id_user'], NULL, 'AKTIF', NULL, $username, md5($password));
+				$status = $this->user_model->edit_user(
+					$data['id_user'], NULL, 'AKTIF', NULL, $username, md5($password)
+				);
 
 				if ($status)
 				{

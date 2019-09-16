@@ -148,8 +148,9 @@ class Siswa extends KCOREST_Controller {
 			'integer' => $this->lang->line('rest_input_angka')
 		];
 
-		$this->form_validation->set_rules(
-			'email', 'Email', 'trim|required|is_unique[tbl_user.email]', $input_failed);
+		$this->form_validation
+		// ->set_rules('email', 'Email', 'trim|required|is_unique[tbl_user.email]', $input_failed);
+		->set_rules('email', 'Email', 'trim|required|is_unique[tbl_user.email]', $input_failed);
 		$this->form_validation->set_rules('nisn', 'NISN', 'trim|required|integer', $input_failed);
 		$this->form_validation->set_rules('nama', 'Nama', 'trim|required', $input_failed);
 		$this->form_validation->set_rules('gender', 'Gender', 'trim|required', $input_failed);
@@ -169,6 +170,7 @@ class Siswa extends KCOREST_Controller {
 			$kelas = $this->post('kelas');
 			$id_jurusan = $this->post('id_jurusan');
 			$index_jurusan = $this->post('index_jurusan');
+			$gambar = $this->post('gambar');
 
 			$user = $this->access->get_access($token);
 
@@ -181,42 +183,58 @@ class Siswa extends KCOREST_Controller {
 					{
 						$register_user = $this->user_model->get_user_by_email($email);
 
-						$this->db->trans_begin();
-						try
+						if ($this->aktifasi->kirim_aktifasi($register_user['email'], $register_user['keterangan']))
 						{
-							$this->siswa_model->tambah_siswa(
-								$register_user['id_user'],
-								$nisn, $nama, $gender, $tanggal_lahir, $kelas, $id_jurusan, $index_jurusan
-							);
-							$this->peran_model->tambah_peran(
-								$register_user['id_user'], $level['id_level'], $user['id_user']
-							);
+							$gambar_location = NULL;
+							if (!empty($gambar))
+							{
+								$image_data = $this->file->upload_gambar('gambar');
+								if ($image_data['status'] == 0)
+								{
+									$this->user_model->hapus_user($register_user['id_user']);
+									$this->default_response['pesan'] = $image_data['pesan'];
+								}
+								else
+								{
+									$gambar_location = $image_data['pesan'];
+								}
+							}
 
-							if ($this->db->trans_status() == false)
+							$this->db->trans_begin();
+							try
+							{
+								$this->siswa_model->tambah_siswa(
+									$register_user['id_user'],
+									$nisn, $nama, $gender, $tanggal_lahir, $kelas, $id_jurusan, $index_jurusan, $gambar_location
+								);
+								$this->peran_model->tambah_peran(
+									$register_user['id_user'], $level['id_level'], $user['id_user']
+								);
+
+								if ($this->db->trans_status() == false)
+								{
+									$this->db->trans_rollback();
+									$this->user_model->hapus_user($register_user['id_user']);
+									$this->default_response['pesan'] = 'Gagal';
+								}
+								else
+								{
+									$this->db->trans_commit();
+									$this->default_response['status'] = 1;
+									$this->default_response['pesan'] = 'Berhasil terdaftar, email sudah sampai';
+								}
+							}
+							catch (Exception $ex)
 							{
 								$this->db->trans_rollback();
 								$this->user_model->hapus_user($register_user['id_user']);
 								$this->default_response['pesan'] = 'Gagal';
 							}
-							else
-							{
-								$this->db->trans_commit();
-								$this->default_response['status'] = 1;
-								$this->default_response['pesan'] = 'Berhasil';
-							}
 						}
-						catch (Exception $ex)
-						{
-							$this->db->trans_rollback();
-							$this->user_model->hapus_user($register_user['id_user']);
-							$this->default_response['pesan'] = 'Gagal';
-						}
-
-						if (!$this->aktifasi->kirim_aktifasi($register_user['email'], $register_user['keterangan']))
+						else
 						{
 							$this->default_response['status'] = 0;
 							$this->default_response['pesan'] = 'Tidak dapat mengirim email aktifasi';
-							$this->db->trans_rollback();
 							$this->user_model->hapus_user($register_user['id_user']);
 						}
 					}

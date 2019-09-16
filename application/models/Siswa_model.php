@@ -50,20 +50,22 @@ class Siswa_model extends CI_Model {
 	}
 
 	// Akan ada bug ketika memasukan tanggal lahir, kelas, indexjurusan dan gender
-	public function tambah_siswa($id_user, $nisn, $nama, $gender, $tanggal_lahir, $kelas, $id_jurusan, $index_jurusan)
+	public function tambah_siswa
+	($id_user, $nisn, $nama, $gender, $tanggal_lahir, $kelas, $id_jurusan, $index_jurusan, $gambar_location = NULL)
 	{
-		return $this->db->insert('tbl_siswa',
-			[
-				'id_user' => $id_user,
-				'nisn' => $nisn,
-				'nama' => $nama,
-				'gender' => $gender,
-				'tanggal_lahir' => $tanggal_lahir,
-				'kelas' => $kelas,
-				'id_jurusan' => $id_jurusan,
-				'index_jurusan' => $index_jurusan
-			]
-		) > 0;
+		$data = [
+			'id_user' => $id_user,
+			'nisn' => $nisn,
+			'nama' => $nama,
+			'gender' => $gender,
+			'tanggal_lahir' => $tanggal_lahir,
+			'kelas' => $kelas,
+			'id_jurusan' => $id_jurusan,
+			'index_jurusan' => $index_jurusan
+		];
+		if ($gambar_location != NULL) $data['image_link'] = $gambar_location;
+		
+		return $this->db->insert('tbl_siswa', $data) > 0;
 	}
 
 	public function edit_siswa($id_user, $nisn, $nama, $gender, $tanggal_lahir, $kelas, $id_jurusan, $index_jurusan)
