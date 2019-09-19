@@ -453,8 +453,6 @@ class Voting extends KCOREST_Controller {
 		$this->form_validation->set_rules('nama', 'Nama Team', 'trim|required', $input_failed);
 		$this->form_validation->set_rules('id_ketua', 'ID Ketua', 'trim|required|integer', $input_failed);
 		$this->form_validation->set_rules('id_wakil', 'ID Wakil', 'trim|required|integer', $input_failed);
-		$this->form_validation->set_rules('visi', 'Visi', 'trim|required', $input_failed);
-		$this->form_validation->set_rules('misi', 'Misi', 'trim|required', $input_failed);
 
 		if ($this->form_validation->run() == TRUE)
 		{
@@ -463,8 +461,6 @@ class Voting extends KCOREST_Controller {
 			$nama = $this->post('nama');
 			$id_ketua = $this->post('id_ketua');
 			$id_wakil = $this->post('id_wakil');
-			$visi = $this->post('visi');
-			$misi = $this->post('misi');
 
 			if ($id_ketua != $id_wakil)
 			{
@@ -479,7 +475,7 @@ class Voting extends KCOREST_Controller {
 						if ($event_voting['id_pembuat'] == $admin['id_admin'])
 						{
 							$status = $this->voting_model
-							->tambah_team($id_event_voting, $nama, $id_ketua, $id_wakil, $visi, $misi);
+							->tambah_team($id_event_voting, $nama, $id_ketua, $id_wakil);
 
 							if ($status)
 							{
@@ -530,8 +526,6 @@ class Voting extends KCOREST_Controller {
 		$this->form_validation->set_rules('nama', 'Nama Team', 'trim|required', $input_failed);
 		$this->form_validation->set_rules('id_ketua', 'ID Ketua', 'trim|required|integer', $input_failed);
 		$this->form_validation->set_rules('id_wakil', 'ID Wakil', 'trim|required|integer', $input_failed);
-		$this->form_validation->set_rules('visi', 'Visi', 'trim|required', $input_failed);
-		$this->form_validation->set_rules('misi', 'Misi', 'trim|required', $input_failed);
 
 		if ($this->form_validation->run() == TRUE)
 		{
@@ -540,8 +534,6 @@ class Voting extends KCOREST_Controller {
 			$nama = $this->post('nama');
 			$id_ketua = $this->post('id_ketua');
 			$id_wakil = $this->post('id_wakil');
-			$visi = $this->post('visi');
-			$misi = $this->post('misi');
 
 			$user = $this->access->get_access($token);
 
@@ -563,10 +555,8 @@ class Voting extends KCOREST_Controller {
 								$status = $this->db->update('tbl_nominasi_team', 
 									[
 										'nama' => $nama,
-										'visi' => $visi,
 										'id_ketua' => $id_ketua,
-										'id_wakil'=> $id_wakil,
-										'misi' => $misi
+										'id_wakil'=> $id_wakil
 									],
 									[
 										'id_nominasi_team' => $id_team

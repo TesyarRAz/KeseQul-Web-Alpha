@@ -74,7 +74,6 @@ class Guru extends KCOREST_Controller {
 			$nama = $this->post('nama');
 			$gender = $this->post('gender');
 			$tanggal_lahir = $this->post('tanggal_lahir');
-			$gambar = $this->post('gambar');
 
 			$user = $this->access->get_access($token);
 			if ($this->access->filter_access(['level' => 'W_GURU'], $user['id_user']))
@@ -89,18 +88,19 @@ class Guru extends KCOREST_Controller {
 						if ($this->aktifasi->kirim_aktifasi($register_user['email'], $register_user['keterangan']))
 						{
 							$gambar_location = NULL;
-							if (!empty($gambar))
+
+							$image_data = $this->file->upload_gambar('gambar');
+							if ($image_data['status'] == 0 && $image_data['pesan'] == NULL)
 							{
-								$image_data = $this->file->upload_gambar('gambar');
-								if ($image_data['status'] == 0)
-								{
-									$this->user_model->hapus_user($register_user['id_user']);
-									$this->default_response['pesan'] = $image_data['pesan'];
-								}
-								else
-								{
-									$gambar_location = $image_data['pesan'];
-								}
+								$this->user_model->hapus_user($register_user['id_user']);
+								$this->default_response['pesan'] = $image_data['pesan'];
+								$this->print_response();
+								$this->output->_display();
+								exit;
+							}
+							else if ($image_data['pesan'] != NULL)
+							{
+								$gambar_location = $image_data['pesan'];
 							}
 
 							$this->db->trans_begin();

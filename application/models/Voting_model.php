@@ -66,16 +66,14 @@ class Voting_model extends CI_Model {
 		) > 0;
 	}
 
-	public function tambah_team($id_event_voting, $nama, $id_ketua, $id_wakil, $visi, $misi)
+	public function tambah_team($id_event_voting, $nama, $id_ketua, $id_wakil)
 	{
 		return $this->db->insert('tbl_nominasi_team', 
 			[
 				'id_event_voting' => $id_event_voting,
 				'nama' => $nama,
 				'id_ketua' => $id_ketua,
-				'id_wakil' => $id_wakil,
-				'visi' => $visi,
-				'misi' => $misi
+				'id_wakil' => $id_wakil
 			]
 		) > 0;
 	}
