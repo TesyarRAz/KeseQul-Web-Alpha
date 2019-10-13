@@ -1,13 +1,6 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-/*
-
-Catatan :
-Jika saat upload ke hosting bermasalah,
-nah itu adalah web nya waktu nya tidak sesuai dengan waktu sql nya
-
-*/
 
 class User_model extends CI_Model {
 	public function __construct()
