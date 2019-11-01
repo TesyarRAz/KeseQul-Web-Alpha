@@ -13,6 +13,7 @@ class Siswa extends KCOREST_Controller {
 		$this->load->model('uang_model', '', true);
 
 		$this->load->library('aktifasi');
+		$this->load->library('file');
 	}
 	public function datauser_get()
 	{

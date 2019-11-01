@@ -21,9 +21,9 @@ class File {
         {
             $config['upload_path'] = 'assets/upload/image/';
             $config['allowed_types'] = 'jpg|jpeg|png';
-            $config['max_size'] = 1024 * 20;
-            $config['max_width'] = 1024;
-            $config['max_height'] = 768;
+            // $config['max_size'] = 1024 * 20;
+            // $config['max_width'] = 1024;
+            // $config['max_height'] = 768;
             $config['file_name'] = uniqid();
 
             $this->instance->upload->initialize($config);

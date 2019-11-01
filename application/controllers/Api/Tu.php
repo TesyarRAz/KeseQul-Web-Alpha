@@ -11,6 +11,7 @@ class TU extends KCOREST_Controller {
 		$this->load->model('topup_model', '', true);
 
 		$this->load->library('aktifasi');
+		$this->load->library('file');
 	}
 
 	public function data_get()

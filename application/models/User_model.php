@@ -90,8 +90,7 @@ class User_model extends CI_Model {
 		$this->db->delete('tbl_user', ['id_user' => $id_user]) > 0;
 	}
 
-	public function edit_user
-	($id_user, $email = NULL, $status = NULL, $keterangan = NULL, $username = NULL, $password = NULL)
+	public function edit_user($id_user, $email = NULL, $status = NULL, $keterangan = NULL, $username = NULL, $password = NULL)
 	{
 		$updates = [];
 
@@ -99,7 +98,10 @@ class User_model extends CI_Model {
 		if (!empty($status)) $updates['status'] = $status;
 		if (!empty($keterangan)) $updates['keterangan'] = $keterangan;
 		if (!empty($username)) $updates['username'] = $username;
-		if (!empty($passwodr)) $updates['password'] = $password;
+		if (!empty($password)) $updates['password'] = $password;
+
+		if (is_null($keterangan))
+			$updates['keterangan'] = '';
 
 		return $this->db->update('tbl_user', 
 			$updates,

@@ -36,7 +36,7 @@ class Access {
 				}
 				else
 				{
-					$this->default_response['pesan'] = 'Akun anda di ban, pesan admin : ' . $user['reason_ban'];
+					$this->default_response['pesan'] = 'Akun anda di ban, pesan admin : ' . $user['keterangan'];
 
 					$this->instance->response($this->default_response, 200);
 					$this->instance->output->_display();
@@ -71,7 +71,7 @@ class Access {
 				}
 				else
 				{
-					echo $this->default_response['pesan'] = 'Akun anda di ban, pesan admin : ' . $user['reason_ban'];
+					echo $this->default_response['pesan'] = 'Akun anda di ban, pesan admin : ' . $user['keterangan'];
 					exit;
 				}
 			}

@@ -25,6 +25,8 @@ class Guru extends KCOREST_Controller {
 
 	public function data_get()
 	{
+		$token = $this->input->get('token');
+		$user = $this->access->get_access($token);
 		if ($this->access->filter_access(['peran' => 'GURU'], $user['id_user']))
 		{
 			$guru = $this->guru_model->get_guru_by_user($user['id_user']);
