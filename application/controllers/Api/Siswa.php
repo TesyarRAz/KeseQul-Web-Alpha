@@ -80,13 +80,16 @@ class Siswa extends KCOREST_Controller {
 			$user = $this->access->get_access($token);
 			$siswa = $this->siswa_model->get_siswa_by_user($user['id_user']);
 			$uang = (int) $this->uang_model->get_uang_by_user($user['id_user']);
-			$setting = (int) $this->setting_model
-			->get_setting_angkatan_by_nama('HARGA_SPP', $siswa['kelas'], $siswa['id_jurusan']);
+			$setting = $this->setting_model->get_setting_angkatan_by_nama('HARGA_SPP', $siswa['kelas'], $siswa['id_jurusan']);
 
 			if ($setting)
 			{
 				$bayar_per_bulan = $setting['nilai'];
 				$total = $bulan * $bayar_per_bulan;
+
+				// $this->default_response['status'] = 0;
+				// $this->default_response['pesan'] = $total . ' ' . $siswa['kelas'] . ' ' . empty($setting) . ' ' . $uang;
+
 				if ($uang >= $total)
 				{
 					$status = $this->spp_model->bayar_spp($siswa['id_siswa'], $total, $bulan);
