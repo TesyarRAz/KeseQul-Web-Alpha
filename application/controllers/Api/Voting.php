@@ -46,6 +46,7 @@ class Voting extends KCOREST_Controller {
 
 		if ($this->default_response['status'] == 0)
 		{
+		    $this->form_validation->set_data(['password' => $this->input->get('password')]);
 			$this->form_validation->set_rules('password', 'Password', 'trim|required', 
 				['required' => $this->lang->line('rest_input_kosong')]
 			);
@@ -394,6 +395,7 @@ class Voting extends KCOREST_Controller {
 		if ($this->default_response['status'] == 0)
 		{
 			$this->form_validation->reset_validation();
+			$this->form_validation->set_data(['password' => $this->input->get('password')]);
 			$this->form_validation->set_rules('password', 'Password', 'trim|required', 
 				['required' => $this->lang->line('rest_input_kosong')]
 			);
@@ -468,6 +470,8 @@ class Voting extends KCOREST_Controller {
 
 				if ($event_voting)
 				{
+				    $user = $this->access->get_access($token);
+				    
 					$admin = $this->admin_model->get_admin_by_user($user['id_user']);
 
 					if ($admin)
@@ -628,6 +632,8 @@ class Voting extends KCOREST_Controller {
 				// BUG ADA TEAM TIDAK ADA EVENT
 				if ($event_voting)
 				{
+				    $user = $this->access->get_access($token);
+				    
 					$admin = $this->admin_model->get_admin_by_user($user['id_user']);
 
 					if ($event_voting['id_pembuat'] == $admin['id_admin'])

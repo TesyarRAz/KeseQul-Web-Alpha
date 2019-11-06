@@ -26,7 +26,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 |
 */
 // $config['base_url'] = 'https://kesequl.000webhostapp.com/';
-$config['base_url'] = 'http://localhost/kesequl/';
+$config['base_url'] = 'https://kesequl.exposei.com/';
 
 /*
 |--------------------------------------------------------------------------

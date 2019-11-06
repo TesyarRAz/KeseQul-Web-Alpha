@@ -148,13 +148,13 @@ class User extends KCOREST_Controller {
 			'integer' => $this->lang->line('rest_input_angka')
 		];
 		$this->form_validation->set_rules('id_user', 'ID User', 'trim|required|integer', $input_failed);
-		$this->form_validation->set_rules('keterangan', 'Alasan Ban', 'trim|required', $input_failed);
+		$this->form_validation->set_rules('reason_ban', 'Alasan Ban', 'trim|required', $input_failed);
 
 		if ($this->form_validation->run() == TRUE)
 		{
 			$token = $this->input->get('token');
 			$target_ban = $this->post('id_user');
-			$reason_ban = $this->post('keterangan');
+			$reason_ban = $this->post('reason_ban');
 			$user = $this->access->get_access($token);
 
 			if ($target_ban != $user['id_user'])

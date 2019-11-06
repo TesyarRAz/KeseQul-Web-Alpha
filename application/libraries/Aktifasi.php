@@ -9,9 +9,10 @@ class Aktifasi {
 
 		$this->instance->load->library('email', 
 			[
-				'smtp_host' => 'localhost',
+				'smtp_host' => 'kesequl.exposei.com',
+				'smtp_port' => 993,
 				'smtp_user' => 'info',
-				'smtp_pass' => 'greget6565',
+				'smtp_pass' => 'manusia1234',
 				'mailtype' => 'html'
 			]
 		);
@@ -20,7 +21,7 @@ class Aktifasi {
 	public function kirim_aktifasi($email, $kode) {
 		try
 		{
-			$this->instance->email->from('info@localhost', 'KeseQul');
+			$this->instance->email->from('info@kesequl.exposei.com', 'KeseQul');
 			$this->instance->email->to($email);
 			$this->instance->email->subject('Aktifasi Akun');
 			$this->instance->email->message(
